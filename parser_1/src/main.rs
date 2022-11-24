@@ -2,37 +2,46 @@ fn main() {
     let mut raw = String::from("");
     let stdin = std::io::stdin();
     stdin.read_line(&mut raw).unwrap();
-    let mut inp = raw.chars().rev().collect::<String>();
+    let mut tmp: String = raw.chars().collect();
+    tmp = tmp.replace('\n', "");
+    tmp = tmp.replace('\r', "");
+    tmp.push('$');
+    let mut inp = tmp.chars();
 
     let mut stack = vec![table::State::E];
+    let mut this_char = inp.next().unwrap();
 
-    while !stack.is_empty() && !inp.is_empty() {
-        let i = inp.chars().last().unwrap();
-        let this = stack.last().unwrap();
-
-        let res = trans(this, i);
+    while !stack.is_empty() {
+        println!("============");
+        print!("before");
         dbg!(&stack);
-        if let Ok(mut ok) = res {
-            dbg!(&ok);
-            ok.reverse();
-            for i in ok {
-                stack.push(i);
+        dbg!(this_char);
+        if let State::Terminal(cha) = stack.last().unwrap() {
+            if *cha == this_char {
+                stack.pop();
+                this_char = inp.next().unwrap();
             }
         } else {
-            println!("Error");
-            return;
-        }
-        while let table::State::Terminal(t) = stack.last().unwrap() {
-            if *t == i {
-                inp.pop();
-                stack.pop();
-                continue;
+            let new_state = trans(stack.last().unwrap(), this_char).unwrap();
+            stack.pop();
+            let first_1 = new_state.first().unwrap().clone();
+            if let State::Eps = first_1 {
             } else {
-                println!("error {} {}", t, i);
+                for i in new_state.iter().rev() {
+                    stack.push(*i);
+                }
             }
         }
+        print!("after");
+        dbg!(this_char);
+        dbg!(&stack);
+        println!();
     }
 }
 mod trans;
+
+use table::State;
 use trans::*;
+mod ast;
 mod table;
+use ast::*;

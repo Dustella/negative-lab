@@ -19,12 +19,18 @@ pub fn trans(state: &State, cha: char) -> Result<Vec<State>, String> {
         },
         State::Ee => match cha {
             '+' => Ok(vec![State::Terminal('+'), State::T, State::Ee]),
+            ')' => Ok(vec![State::Eps]),
+            '$' => Ok(vec![State::Eps]),
             _ => Err("".to_string()),
         },
         State::Tt => match cha {
             '*' => Ok(vec![State::Terminal('*'), State::F, State::Tt]),
+            '+' => Ok(vec![State::Eps]),
+            ')' => Ok(vec![State::Eps]),
+            '$' => Ok(vec![State::Eps]),
             _ => Err("".to_string()),
         },
         State::Terminal(_) => Err("expect terminal".to_string()),
+        State::Eps => Err("".to_string()),
     }
 }

@@ -1,4 +1,4 @@
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub enum State {
     E,
     Ee,
@@ -6,4 +6,5 @@ pub enum State {
     Tt,
     F,
     Terminal(char),
+    Eps,
 }
