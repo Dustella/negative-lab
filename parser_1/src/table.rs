@@ -8,3 +8,13 @@ pub enum State {
     Terminal(char),
     Eps,
 }
+
+impl State {
+    pub fn is_terminal(self) -> bool {
+        let mut res = false;
+        if let State::Terminal(_) = self {
+            res = true
+        }
+        res
+    }
+}

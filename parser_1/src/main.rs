@@ -1,3 +1,4 @@
+#![recursion_limit = "25565"]
 fn main() {
     let mut raw = String::from("");
     let stdin = std::io::stdin();
@@ -10,6 +11,8 @@ fn main() {
 
     let mut stack = vec![table::State::E];
     let mut this_char = inp.next().unwrap();
+
+    let mut node = Node::new(State::E);
 
     while !stack.is_empty() {
         println!("============");
@@ -25,6 +28,7 @@ fn main() {
             let new_state = trans(stack.last().unwrap(), this_char).unwrap();
             stack.pop();
             let first_1 = new_state.first().unwrap().clone();
+            node.push(&new_state);
             if let State::Eps = first_1 {
             } else {
                 for i in new_state.iter().rev() {
@@ -32,10 +36,6 @@ fn main() {
                 }
             }
         }
-        print!("after");
-        dbg!(this_char);
-        dbg!(&stack);
-        println!();
     }
 }
 mod trans;
