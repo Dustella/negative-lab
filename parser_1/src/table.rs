@@ -15,6 +15,9 @@ impl State {
         if let State::Terminal(_) = self {
             res = true
         }
+        if let State::Eps = self {
+            res = true
+        }
         res
     }
 }

@@ -16,7 +16,6 @@ fn main() {
 
     while !stack.is_empty() {
         println!("============");
-        print!("before");
         dbg!(&stack);
         dbg!(this_char);
         if let State::Terminal(cha) = stack.last().unwrap() {
@@ -37,6 +36,7 @@ fn main() {
             }
         }
     }
+    node.print(0);
 }
 mod trans;
 

@@ -1,3 +1,3 @@
 [workspace]
 
-members = ["automa", "parser_1"]
+members = ["automa", "parser_1", "tree"]

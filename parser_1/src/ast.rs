@@ -1,74 +1,61 @@
-use std::{
-    borrow::{Borrow, BorrowMut},
-    cell::RefCell,
-    ops::{Deref, DerefMut},
-    rc::Rc,
-};
+use std::{cell::RefCell, fmt, rc::Rc};
 
 use crate::table::State;
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct Node {
     ele: State,
     children: Vec<Rc<RefCell<Box<Node>>>>,
 }
-impl Deref for Node {
-    type Target = Node;
-    fn deref(&self) -> &Self::Target {
-        &self
-    }
-}
-
-impl DerefMut for Node {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self
+impl fmt::Display for Node {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}===\n", self.ele).unwrap();
+        for i in &self.children {
+            write!(f, "{} ", i.borrow()).unwrap();
+        }
+        Ok(())
     }
 }
 impl Node {
-    pub fn new(ele: State) -> Self {
-        let children: Vec<Rc<RefCell<Box<Node>>>> = Vec::new();
-        Node { children, ele }
-    }
-    pub fn has_children(&self) -> bool {
-        self.children.len() != 0
-    }
-    pub fn is_all_terminal(&self) -> bool {
-        let mut res = false;
-        if let State::Terminal(_) = self.ele {
-            res = true;
-        } else {
-            // for i in self.children.clone() {
-            //     if i..ele.is_terminal() {
-            //         res = true
-            //     }
-            // }
+    pub fn new(ele: State) -> Node {
+        Node {
+            ele,
+            children: Vec::new(),
         }
-        res
     }
     pub fn push(&mut self, to_push: &Vec<State>) {
-        let mut lock = false;
-        self._push(&to_push, &mut lock)
+        let lock = Rc::new(RefCell::new(false));
+        self._push(to_push, lock);
     }
-    pub fn _push(&mut self, to_push: &Vec<State>, lock: &mut bool) {
-        if *lock {
+
+    pub fn _push(&mut self, to_push: &Vec<State>, lock: Rc<RefCell<bool>>) {
+        if lock.borrow().clone() {
             return;
         }
         if self.ele.is_terminal() {
             return;
         }
-        if !self.has_children() {
+        if self.children.len() == 0 {
             for i in to_push {
                 let node = Node::new(*i);
-                self.borrow_mut()
-                    .children
-                    .push(Rc::new(RefCell::new(Box::new(node))));
+                self.children.push(Rc::new(RefCell::new(Box::new(node))));
             }
-            *lock = true;
+            lock.borrow_mut().clone_from(&true);
             return;
-        } else {
-            for mut i in self.children.clone() {
-                i.clone().borrow_mut().get_mut()._push(to_push, &mut lock)
+        }
+        for i in &self.children {
+            // take i and push to it
+            i.borrow_mut()._push(to_push, lock.clone());
+        }
+    }
+    pub fn print(&self, offset: usize) {
+        println!("{:?} ", self.ele);
+
+        for i in &self.children {
+            let las = offset / 4;
+            for _ in 0..las + 1 {
+                print!("|---");
             }
-            return;
+            i.clone().borrow().print(offset + 4);
         }
     }
 }
